@@ -1,0 +1,6 @@
+::-webkit-scrollbar{
+  display: none;
+}
+.bg-image{
+  background-image: url("../public/convocationBanner2024.jpg");
+}
