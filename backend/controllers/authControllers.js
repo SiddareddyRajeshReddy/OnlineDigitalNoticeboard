@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs'
 import connection from '../db/dbConnection.js'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
-dotenv.config({ path: './backend/.env' });
+dotenv.config();
 //signup
 export async function signup(req, res) {
     try {
