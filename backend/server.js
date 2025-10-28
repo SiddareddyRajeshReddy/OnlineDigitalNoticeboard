@@ -4,6 +4,7 @@ import noticeBoardRouter from './routers/noticeBoardRoutes.js'
 import cors from 'cors'
 import authRouter from './routers/authRouters.js'
 import cookieParser from 'cookie-parser'
+import userRouter from './routers/userRouters.js'
 const app = express()
 const port = 5174
 app.use(cors())
@@ -20,5 +21,5 @@ connection.connect((err) => {
 });
 app.use("/api/auth", authRouter)
 app.use("/api/notices",noticeBoardRouter)
-
+app.use("/api/users", userRouter)
 app.listen(port)

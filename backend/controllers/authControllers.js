@@ -134,3 +134,12 @@ export async function login(req, res) {
         res.status(500).json({ error: 'Internal Server Error', e: error.message });
     }
 }
+
+//logout
+export async function logout(req, res){
+    if(req.cookies.auth_token)
+    {
+        res.clearCookie('auth_token')
+    }
+    res.status(200).json({message: 'logged out Successfully'})
+}
