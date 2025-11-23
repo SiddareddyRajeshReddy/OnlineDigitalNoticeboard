@@ -1,18 +1,37 @@
-import express from 'express'
-const authRouter = express.Router()
-import { signup, login, logout } from '../controllers/authControllers.js'
-import middleWare from '../middleware/authMiddleware.js'
-authRouter.post('/signup', (req, res)=>{
-    signup(req, res)
-})
-authRouter.post('/login', (req, res)=>{
-    login(req, res)
-})
-authRouter.post('/logout', (req, res)=>{
-    logout(req, res)
-})
-authRouter.get('/user', middleWare, (req, res)=>{
-     res.status(200).json({success: true, user: req.user});
-})
+import express from 'express';
+import { signup, login, logout } from '../controllers/authControllers.js';
+import middleWare from '../middleware/authMiddleware.js';
 
-export default authRouter
+const authRouter = express.Router();
+
+authRouter.post('/signup', signup);
+authRouter.post('/login', login);
+authRouter.post('/logout', logout);
+
+authRouter.get('/user', middleWare, (req, res) => {
+    if (req.userType === 'committee') {
+        return res.status(200).json({
+            user: {
+                id: req.user.committee_id,
+                full_name: req.user.full_name,
+                email: req.user.email,
+                phone: req.user.phone,
+                type: 'committee'  // <-- This is what frontend needs
+            }
+        });
+    } else if (req.userType === 'admin') {
+        return res.status(200).json({
+            user: {
+                id: req.user.admin_id,
+                name: req.user.name,
+                email: req.user.email,
+                phone: req.user.phone,
+                type: 'admin'  // <-- This is what frontend needs
+            }
+        });
+    } else {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+});
+
+export default authRouter;

@@ -1,16 +1,24 @@
 import express from 'express'
 import connection from './db/dbConnection.js'
-import noticeBoardRouter from './routers/noticeBoardRoutes.js'
 import cors from 'cors'
-import authRouter from './routers/authRouters.js'
 import cookieParser from 'cookie-parser'
-import userRouter from './routers/userRouters.js'
+import authRouter from './routers/authRouters.js'
+import announcementRouter from './routers/announcementsRouters.js'
+import adminRouter from './routers/adminRouter.js'
+import categoryRouter from './routers/categoryRouter.js'
+
 const app = express()
-const port = 5174
-app.use(cors())
+const port = 5000
+
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}))
+
 app.use(express.json())
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }))
+
 connection.connect((err) => {
     if (err) {
         console.error('Database connection failed:', err);
@@ -19,7 +27,13 @@ connection.connect((err) => {
         console.log('Database connection successful');
     }
 });
+
+// Routes
 app.use("/api/auth", authRouter)
-app.use("/api/notices",noticeBoardRouter)
-app.use("/api/users", userRouter)
-app.listen(port)
+app.use("/api/announcements", announcementRouter)
+app.use("/api/admin", adminRouter)
+app.use("/api/categories", categoryRouter)
+
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`)
+})
