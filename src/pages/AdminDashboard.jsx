@@ -9,6 +9,7 @@ function AdminDashboard({ user, setUser }) {
   const [pendingCommittees, setPendingCommittees] = useState([]);
   const [pendingAnnouncements, setPendingAnnouncements] = useState([]);
   const [pendingCategories, setPendingCategories] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -34,6 +35,9 @@ function AdminDashboard({ user, setUser }) {
       } else if (activeTab === 'categories') {
         const response = await categoryAPI.getPending();
         setPendingCategories(response.data || []);
+      } else if (activeTab === 'allCategories') {
+        const response = await categoryAPI.getAll();
+        setAllCategories(response.data || []);
       } else if (activeTab === 'published') {
         const response = await announcementAPI.getPublished();
         setAnnouncements(response.data || []);
@@ -114,6 +118,15 @@ function AdminDashboard({ user, setUser }) {
     } catch (err) { setError(err.message); }
   };
 
+  const handleDeleteCategory = async (id) => {
+    if (!window.confirm('Permanently delete this category? This cannot be undone.')) return;
+    try {
+      await categoryAPI.delete(id);
+      setSuccess('Category deleted successfully');
+      fetchData();
+    } catch (err) { setError(err.message); }
+  };
+
   const handleAddAdmin = async (e) => {
     e.preventDefault();
     setError(''); setSuccess('');
@@ -137,6 +150,7 @@ function AdminDashboard({ user, setUser }) {
     { id: 'committees', label: 'Pending Committees' },
     { id: 'announcements', label: 'Pending Announcements' },
     { id: 'categories', label: 'Pending Categories' },
+    { id: 'allCategories', label: 'All Categories' },
     { id: 'published', label: 'Published' },
     { id: 'admins', label: 'Manage Admins' },
   ];
@@ -161,7 +175,6 @@ function AdminDashboard({ user, setUser }) {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-8">
-        {/* Tabs */}
         <div className="flex gap-1 mb-6 border-b border-gray-200 overflow-x-auto">
           {tabs.map((tab) => (
             <button
@@ -178,7 +191,6 @@ function AdminDashboard({ user, setUser }) {
           ))}
         </div>
 
-        {/* Messages */}
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded flex justify-between">
             <span>{error}</span>
@@ -192,7 +204,6 @@ function AdminDashboard({ user, setUser }) {
           </div>
         )}
 
-        {/* Pending Committees */}
         {activeTab === 'committees' && (
           <div className="bg-white rounded-lg border border-gray-200">
             <div className="p-4 border-b border-gray-200">
@@ -231,7 +242,6 @@ function AdminDashboard({ user, setUser }) {
           </div>
         )}
 
-        {/* Pending Announcements */}
         {activeTab === 'announcements' && (
           <div className="bg-white rounded-lg border border-gray-200">
             <div className="p-4 border-b border-gray-200">
@@ -259,7 +269,14 @@ function AdminDashboard({ user, setUser }) {
                         <p className="text-sm text-gray-600 mb-2">{a.content}</p>
                         <div className="flex gap-4 text-xs text-gray-500">
                           <span>By: {a.announcer_name || 'Unknown'}</span>
-                          <span>Category: {a.category_name || 'None'}</span>
+                          {a.category_name && (
+                            <span
+                              className="px-2 py-0.5 rounded font-medium"
+                              style={{ backgroundColor: a.color_code + '20', color: a.color_code }}
+                            >
+                              {a.category_name}
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="flex gap-2 ml-4">
@@ -280,7 +297,6 @@ function AdminDashboard({ user, setUser }) {
           </div>
         )}
 
-        {/* Pending Categories */}
         {activeTab === 'categories' && (
           <div className="bg-white rounded-lg border border-gray-200">
             <div className="p-4 border-b border-gray-200">
@@ -296,7 +312,7 @@ function AdminDashboard({ user, setUser }) {
                   <div key={c.category_id} className="p-4 flex justify-between items-center">
                     <div className="flex items-center gap-3">
                       <div 
-                        className="w-10 h-10 rounded flex items-center justify-center text-white font-bold"
+                        className="w-12 h-12 rounded flex items-center justify-center text-white font-bold text-lg"
                         style={{ backgroundColor: c.color_code || '#6b7280' }}
                       >
                         {c.dept_associated?.substring(0, 2)}
@@ -305,6 +321,9 @@ function AdminDashboard({ user, setUser }) {
                         <h3 className="font-medium text-gray-900">{c.name}</h3>
                         <p className="text-sm text-gray-600">Dept: {c.dept_associated}</p>
                         <p className="text-xs text-gray-500">By: {c.created_by_name}</p>
+                        <p className="text-xs text-gray-400">
+                          Color: <span className="font-mono">{c.color_code}</span>
+                        </p>
                       </div>
                     </div>
                     <div className="flex gap-2">
@@ -324,7 +343,47 @@ function AdminDashboard({ user, setUser }) {
           </div>
         )}
 
-        {/* Published Announcements */}
+        {activeTab === 'allCategories' && (
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="p-4 border-b border-gray-200">
+              <h2 className="font-semibold text-gray-800">All Approved Categories</h2>
+            </div>
+            {loading ? (
+              <div className="p-8 text-center text-gray-500">Loading...</div>
+            ) : allCategories.length === 0 ? (
+              <div className="p-8 text-center text-gray-500">No approved categories yet</div>
+            ) : (
+              <div className="divide-y divide-gray-200">
+                {allCategories.map((c) => (
+                  <div key={c.category_id} className="p-4 flex justify-between items-center hover:bg-gray-50">
+                    <div className="flex items-center gap-3">
+                      <div 
+                        className="w-12 h-12 rounded flex items-center justify-center text-white font-bold text-lg"
+                        style={{ backgroundColor: c.color_code || '#6b7280' }}
+                      >
+                        {c.dept_associated?.substring(0, 2)}
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-900">{c.name}</h3>
+                        <p className="text-sm text-gray-600">Department: {c.dept_associated}</p>
+                        <p className="text-xs text-gray-400">
+                          Color: <span className="font-mono">{c.color_code}</span>
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => handleDeleteCategory(c.category_id)}
+                      className="px-3 py-1 text-sm text-red-600 border border-red-300 rounded hover:bg-red-50"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {activeTab === 'published' && (
           <div className="bg-white rounded-lg border border-gray-200">
             <div className="p-4 border-b border-gray-200">
@@ -356,7 +415,6 @@ function AdminDashboard({ user, setUser }) {
           </div>
         )}
 
-        {/* Manage Admins */}
         {activeTab === 'admins' && (
           <div className="bg-white rounded-lg border border-gray-200">
             <div className="p-4 border-b border-gray-200 flex justify-between items-center">

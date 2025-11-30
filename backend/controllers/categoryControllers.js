@@ -8,17 +8,16 @@ export async function getAllCategories(req, res) {
             name,
             dept_associated,
             color_code,
-            image_url,
             created_at
         FROM Category
-        WHERE approved_by IS NOT NULL
+        WHERE status = 'approved'
         ORDER BY name ASC
     `;
     
     connection.query(query, (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         return res.status(200).json({ data: result });
     });
@@ -42,7 +41,7 @@ export async function getCategoryById(req, res) {
     connection.query(query, [id], (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         if (result.length === 0) {
             return res.status(404).json({ message: 'Category not found' });
@@ -54,7 +53,7 @@ export async function getCategoryById(req, res) {
 // Create new category (Committee)
 export async function createCategory(req, res) {
     const user = req.user;
-    const { name, dept_associated, color_code, image_url } = req.body;
+    const { name, dept_associated, color_code } = req.body;
     
     if (!name || !dept_associated) {
         return res.status(400).json({ error: 'Name and department are required' });
@@ -65,21 +64,20 @@ export async function createCategory(req, res) {
     }
     
     const query = `
-        INSERT INTO Category (name, dept_associated, created_by, color_code, image_url)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO Category (name, dept_associated, created_by, color_code, status)
+        VALUES (?, ?, ?, ?, 'pending')
     `;
     const values = [
         name,
         dept_associated.toUpperCase(),
         user.committee_id,
-        color_code || '#6b7280',
-        image_url || null
+        color_code || '#6b7280'
     ];
     
     connection.query(query, values, (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         return res.status(201).json({
             message: 'Category created successfully. Awaiting admin approval.',
@@ -92,18 +90,18 @@ export async function createCategory(req, res) {
 export async function updateCategory(req, res) {
     const user = req.user;
     const { id } = req.params;
-    const { name, dept_associated, color_code, image_url } = req.body;
+    const { name, dept_associated, color_code } = req.body;
     
-    // Check if category belongs to user and is not approved yet
+    // Check if category belongs to user and is pending
     const checkQuery = `
         SELECT * FROM Category 
-        WHERE category_id = ? AND created_by = ? AND approved_by IS NULL
+        WHERE category_id = ? AND created_by = ? AND status = 'pending'
     `;
     
     connection.query(checkQuery, [id, user.committee_id], (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         if (result.length === 0) {
             return res.status(404).json({ 
@@ -113,21 +111,20 @@ export async function updateCategory(req, res) {
         
         const updateQuery = `
             UPDATE Category 
-            SET name = ?, dept_associated = ?, color_code = ?, image_url = ?
+            SET name = ?, dept_associated = ?, color_code = ?
             WHERE category_id = ?
         `;
         const values = [
             name || result[0].name,
             dept_associated ? dept_associated.toUpperCase() : result[0].dept_associated,
             color_code || result[0].color_code,
-            image_url !== undefined ? image_url : result[0].image_url,
             id
         ];
         
         connection.query(updateQuery, values, (error, updateResult) => {
             if (error) {
                 console.error(error);
-                return res.status(500).json({ message: 'Database error', error });
+                return res.status(500).json({ message: 'Database error', error: error.message });
             }
             return res.status(200).json({ message: 'Category updated successfully' });
         });
@@ -151,7 +148,7 @@ export async function getMyCategories(req, res) {
     connection.query(query, [user.committee_id], (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         return res.status(200).json({ data: result });
     });
@@ -166,14 +163,14 @@ export async function getPendingCategories(req, res) {
             com.email AS created_by_email
         FROM Category c
         LEFT JOIN Committee com ON c.created_by = com.committee_id
-        WHERE c.approved_by IS NULL
+        WHERE c.status = 'pending'
         ORDER BY c.created_at DESC
     `;
     
     connection.query(query, (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         return res.status(200).json({ data: result });
     });
@@ -186,14 +183,14 @@ export async function approveCategory(req, res) {
     
     const query = `
         UPDATE Category 
-        SET approved_by = ?
-        WHERE category_id = ? AND approved_by IS NULL
+        SET status = 'approved', approved_by = ?
+        WHERE category_id = ? AND status = 'pending'
     `;
     
     connection.query(query, [adminId, id], (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         if (result.affectedRows === 0) {
             return res.status(404).json({ 
@@ -208,19 +205,23 @@ export async function approveCategory(req, res) {
 export async function rejectCategory(req, res) {
     const { id } = req.params;
     
-    const query = `DELETE FROM Category WHERE category_id = ? AND approved_by IS NULL`;
+    const query = `
+        UPDATE Category 
+        SET status = 'rejected'
+        WHERE category_id = ? AND status = 'pending'
+    `;
     
     connection.query(query, [id], (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         if (result.affectedRows === 0) {
             return res.status(404).json({ 
-                message: 'Category not found or already approved' 
+                message: 'Category not found or already processed' 
             });
         }
-        return res.status(200).json({ message: 'Category rejected and deleted' });
+        return res.status(200).json({ message: 'Category rejected successfully' });
     });
 }
 
@@ -234,7 +235,7 @@ export async function deleteCategory(req, res) {
     connection.query(checkQuery, [id], (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         
         if (result[0].count > 0) {
@@ -248,7 +249,7 @@ export async function deleteCategory(req, res) {
         connection.query(deleteQuery, [id], (error, deleteResult) => {
             if (error) {
                 console.error(error);
-                return res.status(500).json({ message: 'Database error', error });
+                return res.status(500).json({ message: 'Database error', error: error.message });
             }
             if (deleteResult.affectedRows === 0) {
                 return res.status(404).json({ message: 'Category not found' });

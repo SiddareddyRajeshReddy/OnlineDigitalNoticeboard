@@ -38,7 +38,7 @@ export async function addNewAdmin(req, res) {
         connection.query(verifyQuery, verifyValues, (error, result) => {
             if (error) {
                 console.error(error);
-                return res.status(500).json({ message: 'Database error during verification', error });
+                return res.status(500).json({ message: 'Database error during verification', error: error.message });
             }
 
             if (result.length > 0) {
@@ -54,7 +54,7 @@ export async function addNewAdmin(req, res) {
             connection.query(query, values, (error, result) => {
                 if (error) {
                     console.error(error);
-                    return res.status(500).json({ message: 'Database error during insert', error });
+                    return res.status(500).json({ message: 'Database error during insert', error: error.message });
                 }
 
                 console.log(result);
@@ -96,7 +96,7 @@ export async function adminLogin(req, res) {
         connection.query(verifyQuery, verifyValues, async (error, result) => {
             if (error) {
                 console.error(error);
-                return res.status(500).json({ message: 'Database error during verification', error });
+                return res.status(500).json({ message: 'Database error during verification', error: error.message });
             }
 
             if (result.length === 0) {
@@ -144,6 +144,7 @@ export async function adminLogin(req, res) {
         res.status(500).json({ error: 'Internal Server Error', e: error.message });
     }
 }
+
 export async function getPendingCommittees(req, res) {
     const query = `
         SELECT committee_id, full_name, email, phone, created_at 
@@ -155,7 +156,7 @@ export async function getPendingCommittees(req, res) {
     connection.query(query, (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         return res.status(200).json({ data: result });
     });
@@ -170,7 +171,7 @@ export async function approveCommittee(req, res) {
     connection.query(query, [id], (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Committee member not found' });
@@ -188,7 +189,7 @@ export async function rejectCommittee(req, res) {
     connection.query(query, [id], (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Committee member not found or already approved' });
@@ -222,7 +223,7 @@ export async function getPendingAnnouncements(req, res) {
     connection.query(query, (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         return res.status(200).json({ data: result });
     });
@@ -244,7 +245,7 @@ export async function approveAnnouncement(req, res) {
     connection.query(query, [adminId, id], (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Announcement not found or not pending' });
@@ -268,7 +269,7 @@ export async function rejectAnnouncement(req, res) {
     connection.query(query, [adminId, id], (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Announcement not found or not pending' });
@@ -276,6 +277,7 @@ export async function rejectAnnouncement(req, res) {
         return res.status(200).json({ message: 'Announcement rejected' });
     });
 }
+
 // Admin logout
 export async function adminLogout(req, res) {
     if (req.cookies.auth_token) {

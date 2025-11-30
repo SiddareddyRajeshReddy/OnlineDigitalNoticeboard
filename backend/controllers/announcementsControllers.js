@@ -19,7 +19,6 @@ export async function getAllAnnouncements(req, res) {
             a.updated_at,
             c.name AS category_name,
             c.color_code,
-            c.image_url,
             c.dept_associated,
             admin.name AS approved_by_name
         FROM Announcements a
@@ -33,7 +32,7 @@ export async function getAllAnnouncements(req, res) {
     connection.query(query, values, (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         return res.status(200).json({ data: result });
     });
@@ -48,7 +47,6 @@ export async function getAnnouncementById(req, res) {
             a.*,
             c.name AS category_name,
             c.color_code,
-            c.image_url,
             c.dept_associated,
             com.full_name AS announcer_name,
             com.email AS announcer_email,
@@ -63,7 +61,7 @@ export async function getAnnouncementById(req, res) {
     connection.query(query, [id], (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         if (result.length === 0) {
             return res.status(404).json({ message: 'Announcement not found' });
@@ -92,9 +90,8 @@ export async function createAnnouncement(req, res) {
             priority, 
             status, 
             announcer_id, 
-            created_by, 
             expires_at
-        ) VALUES (?, ?, ?, ?, ?, 'draft', ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, 'draft', ?, ?)
     `;
     const values = [
         title, 
@@ -103,14 +100,13 @@ export async function createAnnouncement(req, res) {
         category_id || null, 
         priority || 'medium', 
         announcer_id, 
-        announcer_id, 
         expires_at || null
     ];
     
     connection.query(query, values, (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error during insert', error });
+            return res.status(500).json({ message: 'Database error during insert', error: error.message });
         }
         return res.status(201).json({ 
             message: 'Announcement created successfully', 
@@ -131,7 +127,7 @@ export async function updateAnnouncement(req, res) {
     connection.query(checkQuery, [id, user.committee_id], (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         if (result.length === 0) {
             return res.status(404).json({ message: 'Announcement not found or unauthorized' });
@@ -162,7 +158,7 @@ export async function updateAnnouncement(req, res) {
         connection.query(updateQuery, values, (error, updateResult) => {
             if (error) {
                 console.error(error);
-                return res.status(500).json({ message: 'Database error during update', error });
+                return res.status(500).json({ message: 'Database error during update', error: error.message });
             }
             return res.status(200).json({ message: 'Announcement updated successfully' });
         });
@@ -181,14 +177,14 @@ export async function getMyAnnouncements(req, res) {
             c.dept_associated
         FROM Announcements a
         LEFT JOIN Category c ON a.category_id = c.category_id
-        WHERE a.created_by = ?
+        WHERE a.announcer_id = ?
         ORDER BY a.created_at DESC
     `;
     
     connection.query(query, [user.committee_id], (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         return res.status(200).json({ data: result });
     });
@@ -208,7 +204,7 @@ export async function publishAnnouncement(req, res) {
     connection.query(query, [id, user.committee_id], (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Announcement not found, unauthorized, or already submitted' });
@@ -231,7 +227,7 @@ export async function deleteAnnouncement(req, res) {
     connection.query(query, [id], (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Announcement not found' });
@@ -239,6 +235,7 @@ export async function deleteAnnouncement(req, res) {
         return res.status(200).json({ message: 'Announcement deleted successfully' });
     });
 }
+
 export async function getPublishedAnnouncements(req, res) {
     const query = `
         SELECT 
@@ -249,9 +246,9 @@ export async function getPublishedAnnouncements(req, res) {
             a.priority,
             a.published_at,
             a.expires_at,
+            c.category_id,
             c.name AS category_name,
             c.color_code,
-            c.image_url,
             c.dept_associated,
             com.full_name AS announcer_name
         FROM Announcements a
@@ -259,13 +256,20 @@ export async function getPublishedAnnouncements(req, res) {
         LEFT JOIN Committee com ON a.announcer_id = com.committee_id
         WHERE a.status = 'published' 
         AND (a.expires_at IS NULL OR a.expires_at > NOW())
-        ORDER BY a.priority DESC, a.published_at DESC
+        ORDER BY 
+            CASE a.priority
+                WHEN 'urgent' THEN 1
+                WHEN 'high' THEN 2
+                WHEN 'medium' THEN 3
+                WHEN 'low' THEN 4
+            END,
+            a.published_at DESC
     `;
     
     connection.query(query, (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         return res.status(200).json({ data: result });
     });
@@ -284,6 +288,7 @@ export async function getAnnouncementsByCategory(req, res) {
             a.priority,
             a.published_at,
             a.expires_at,
+            c.category_id,
             c.name AS category_name,
             c.color_code,
             c.dept_associated,
@@ -300,7 +305,7 @@ export async function getAnnouncementsByCategory(req, res) {
     connection.query(query, [categoryId], (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         return res.status(200).json({ data: result });
     });
@@ -331,7 +336,7 @@ export async function getAnnouncementsByStatus(req, res) {
     connection.query(query, [user.committee_id, status], (error, result) => {
         if (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Database error', error });
+            return res.status(500).json({ message: 'Database error', error: error.message });
         }
         return res.status(200).json({ data: result });
     });
