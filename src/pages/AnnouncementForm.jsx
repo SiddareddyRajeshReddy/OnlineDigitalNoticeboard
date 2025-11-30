@@ -20,6 +20,11 @@ function AnnouncementForm({ user }) {
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(isEditing);
 
+  // Get today's date in YYYY-MM-DD format
+  const getTodayDate = () => {
+    return new Date().toISOString().split('T')[0];
+  };
+
   useEffect(() => {
     fetchCategories();
     if (isEditing) {
@@ -58,12 +63,30 @@ function AnnouncementForm({ user }) {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const validateDates = () => {
+    if (form.expires_at) {
+      const today = new Date().setHours(0, 0, 0, 0);
+      const expiryDate = new Date(form.expires_at).setHours(0, 0, 0, 0);
+      
+      // Expiry date must be in the future (after today)
+      if (expiryDate <= today) {
+        setError('Expiry date must be in the future');
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSaveDraft = async (e) => {
     e.preventDefault();
     setError('');
 
     if (!form.title || !form.content) {
       return setError('Title and content are required');
+    }
+
+    if (!validateDates()) {
+      return;
     }
 
     setLoading(true);
@@ -92,6 +115,10 @@ function AnnouncementForm({ user }) {
 
     if (!form.title || !form.content) {
       return setError('Title and content are required');
+    }
+
+    if (!validateDates()) {
+      return;
     }
 
     if (!window.confirm('Save and submit this announcement for admin approval?')) return;
@@ -132,13 +159,9 @@ function AnnouncementForm({ user }) {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <Link
-            to="/committee/dashboard"
-            className="text-gray-600 hover:text-gray-800"
-          >
+          <Link to="/committee/dashboard" className="text-gray-600 hover:text-gray-800">
             ← Back
           </Link>
           <h1 className="text-lg font-bold text-gray-800">
@@ -246,8 +269,12 @@ function AnnouncementForm({ user }) {
                   name="expires_at"
                   value={form.expires_at}
                   onChange={handleChange}
+                  min={getTodayDate()}
                   className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-transparent focus:outline-none"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Must be a future date
+                </p>
               </div>
             </div>
 
@@ -270,7 +297,7 @@ function AnnouncementForm({ user }) {
               </button>
               <Link
                 to="/committee/dashboard"
-                className="px-6 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50"
+                className="px-6 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 flex items-center"
               >
                 Cancel
               </Link>
@@ -280,7 +307,13 @@ function AnnouncementForm({ user }) {
 
         {/* Info Box */}
         <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded text-sm text-blue-700">
-          <strong>Note:</strong> Announcements saved as drafts can be edited anytime. Once submitted, they will be sent to admin for approval before being published.
+          <strong>Important:</strong>
+          <ul className="list-disc list-inside mt-2 space-y-1">
+            <li>Announcements saved as drafts can be edited anytime</li>
+            <li>Once submitted, they will be sent to admin for approval before being published</li>
+            <li>Expiry date must be in the future (after today)</li>
+            <li>After admin approval, the announcement will be published with the current timestamp</li>
+          </ul>
         </div>
       </main>
     </div>

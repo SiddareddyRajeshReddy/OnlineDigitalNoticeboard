@@ -3,12 +3,16 @@ import {
     adminLogin, 
     adminLogout, 
     addNewAdmin,
+    getDashboardStats,
     getPendingCommittees,
     approveCommittee,
     rejectCommittee,
     getPendingAnnouncements,
     approveAnnouncement,
-    rejectAnnouncement
+    rejectAnnouncement,
+    getExpiredAnnouncements,
+    getRejectedAnnouncements,
+    getRejectedCategories
 } from '../controllers/adminControllers.js';
 import middleWare, { adminOnly } from '../middleware/authMiddleware.js';
 
@@ -21,6 +25,9 @@ router.post('/logout', adminLogout);
 // Protected admin-only routes
 router.post('/add-admin', middleWare, adminOnly, addNewAdmin);
 
+// Dashboard stats
+router.get('/stats', middleWare, adminOnly, getDashboardStats);
+
 // Committee management
 router.get('/committees/pending', middleWare, adminOnly, getPendingCommittees);
 router.patch('/committees/:id/approve', middleWare, adminOnly, approveCommittee);
@@ -28,7 +35,12 @@ router.delete('/committees/:id/reject', middleWare, adminOnly, rejectCommittee);
 
 // Announcement management
 router.get('/announcements/pending', middleWare, adminOnly, getPendingAnnouncements);
+router.get('/announcements/expired', middleWare, adminOnly, getExpiredAnnouncements);
+router.get('/announcements/rejected', middleWare, adminOnly, getRejectedAnnouncements);
 router.patch('/announcements/:id/approve', middleWare, adminOnly, approveAnnouncement);
 router.patch('/announcements/:id/reject', middleWare, adminOnly, rejectAnnouncement);
+
+// Category management
+router.get('/categories/rejected', middleWare, adminOnly, getRejectedCategories);
 
 export default router;

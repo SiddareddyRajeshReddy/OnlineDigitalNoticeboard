@@ -67,6 +67,12 @@ export const adminAPI = {
             body: JSON.stringify(adminData),
         });
     },
+    // Dashboard stats
+    getDashboardStats: async () => {
+        return apiCall('/admin/stats', {
+            method: 'GET',
+        });
+    },
     // Committee management
     getPendingCommittees: async () => {
         return apiCall('/admin/committees/pending', {
@@ -89,6 +95,16 @@ export const adminAPI = {
             method: 'GET',
         });
     },
+    getExpiredAnnouncements: async () => {
+        return apiCall('/admin/announcements/expired', {
+            method: 'GET',
+        });
+    },
+    getRejectedAnnouncements: async () => {
+        return apiCall('/admin/announcements/rejected', {
+            method: 'GET',
+        });
+    },
     approveAnnouncement: async (announcementId) => {
         return apiCall(`/admin/announcements/${announcementId}/approve`, {
             method: 'PATCH',
@@ -97,6 +113,12 @@ export const adminAPI = {
     rejectAnnouncement: async (announcementId) => {
         return apiCall(`/admin/announcements/${announcementId}/reject`, {
             method: 'PATCH',
+        });
+    },
+    // Category management
+    getRejectedCategories: async () => {
+        return apiCall('/admin/categories/rejected', {
+            method: 'GET',
         });
     },
 };
@@ -157,57 +179,48 @@ export const announcementAPI = {
 };
 
 export const categoryAPI = {
-    // Get all approved categories (Public)
     getAll: async () => {
         return apiCall('/categories', {
             method: 'GET',
         });
     },
-    // Get category by ID
     getById: async (id) => {
         return apiCall(`/categories/${id}`, {
             method: 'GET',
         });
     },
-    // Get my categories (Committee)
     getMy: async () => {
         return apiCall('/categories/my/categories', {
             method: 'GET',
         });
     },
-    // Create new category (Committee)
     create: async (categoryData) => {
         return apiCall('/categories/create', {
             method: 'POST',
             body: JSON.stringify(categoryData),
         });
     },
-    // Update category (Committee)
     update: async (id, categoryData) => {
         return apiCall(`/categories/update/${id}`, {
             method: 'PUT',
             body: JSON.stringify(categoryData),
         });
     },
-    // Get pending categories (Admin)
     getPending: async () => {
         return apiCall('/categories/admin/pending', {
             method: 'GET',
         });
     },
-    // Approve category (Admin)
     approve: async (id) => {
         return apiCall(`/categories/${id}/approve`, {
             method: 'PATCH',
         });
     },
-    // Reject category (Admin)
     reject: async (id) => {
         return apiCall(`/categories/${id}/reject`, {
             method: 'DELETE',
         });
     },
-    // Delete category (Admin)
     delete: async (id) => {
         return apiCall(`/categories/${id}`, {
             method: 'DELETE',
