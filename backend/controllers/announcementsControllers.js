@@ -13,8 +13,8 @@ export async function getAllAnnouncements(req, res) {
             a.url,
             a.status,
             a.priority,
+            a.publish_date,
             a.expires_at,
-            a.published_at,
             a.created_at,
             a.updated_at,
             c.name AS category_name,
@@ -74,7 +74,7 @@ export async function getAnnouncementById(req, res) {
 export async function createAnnouncement(req, res) {
     const user = req.user;
     const announcer_id = user?.committee_id;
-    const { title, content, url, category_id, priority, expires_at } = req.body;
+    const { title, content, url, category_id, priority, publish_date, expires_at } = req.body;
     
     // Validation
     if (!title || !content) {
@@ -90,8 +90,9 @@ export async function createAnnouncement(req, res) {
             priority, 
             status, 
             announcer_id, 
+            publish_date,
             expires_at
-        ) VALUES (?, ?, ?, ?, ?, 'draft', ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, 'draft', ?, ?, ?)
     `;
     const values = [
         title, 
@@ -100,6 +101,7 @@ export async function createAnnouncement(req, res) {
         category_id || null, 
         priority || 'medium', 
         announcer_id, 
+        publish_date || null,
         expires_at || null
     ];
     
@@ -119,7 +121,7 @@ export async function createAnnouncement(req, res) {
 export async function updateAnnouncement(req, res) {
     const user = req.user;
     const { id } = req.params;
-    const { title, content, url, category_id, priority, status, expires_at } = req.body;
+    const { title, content, url, category_id, priority, status, publish_date, expires_at } = req.body;
     
     // First check if announcement belongs to user
     const checkQuery = 'SELECT * FROM Announcements WHERE announcement_id = ? AND announcer_id = ?';
@@ -141,6 +143,7 @@ export async function updateAnnouncement(req, res) {
                 category_id = ?, 
                 priority = ?, 
                 status = ?,
+                publish_date = ?,
                 expires_at = ?
             WHERE announcement_id = ?
         `;
@@ -151,6 +154,7 @@ export async function updateAnnouncement(req, res) {
             category_id !== undefined ? category_id : result[0].category_id,
             priority || result[0].priority,
             status || result[0].status,
+            publish_date !== undefined ? publish_date : result[0].publish_date,
             expires_at !== undefined ? expires_at : result[0].expires_at,
             id
         ];
@@ -236,6 +240,7 @@ export async function deleteAnnouncement(req, res) {
     });
 }
 
+// Get published announcements (PUBLIC - only show active ones)
 export async function getPublishedAnnouncements(req, res) {
     const query = `
         SELECT 
@@ -244,7 +249,7 @@ export async function getPublishedAnnouncements(req, res) {
             a.content,
             a.url,
             a.priority,
-            a.published_at,
+            a.publish_date,
             a.expires_at,
             c.category_id,
             c.name AS category_name,
@@ -255,6 +260,7 @@ export async function getPublishedAnnouncements(req, res) {
         LEFT JOIN Category c ON a.category_id = c.category_id
         LEFT JOIN Committee com ON a.announcer_id = com.committee_id
         WHERE a.status = 'published' 
+        AND a.publish_date <= NOW()
         AND (a.expires_at IS NULL OR a.expires_at > NOW())
         ORDER BY 
             CASE a.priority
@@ -263,7 +269,7 @@ export async function getPublishedAnnouncements(req, res) {
                 WHEN 'medium' THEN 3
                 WHEN 'low' THEN 4
             END,
-            a.published_at DESC
+            a.publish_date DESC
     `;
     
     connection.query(query, (error, result) => {
@@ -275,7 +281,7 @@ export async function getPublishedAnnouncements(req, res) {
     });
 }
 
-// Get announcements by category
+// Get announcements by category (PUBLIC)
 export async function getAnnouncementsByCategory(req, res) {
     const { categoryId } = req.params;
     
@@ -286,7 +292,7 @@ export async function getAnnouncementsByCategory(req, res) {
             a.content,
             a.url,
             a.priority,
-            a.published_at,
+            a.publish_date,
             a.expires_at,
             c.category_id,
             c.name AS category_name,
@@ -298,8 +304,9 @@ export async function getAnnouncementsByCategory(req, res) {
         LEFT JOIN Committee com ON a.announcer_id = com.committee_id
         WHERE a.category_id = ? 
         AND a.status = 'published'
+        AND a.publish_date <= NOW()
         AND (a.expires_at IS NULL OR a.expires_at > NOW())
-        ORDER BY a.published_at DESC
+        ORDER BY a.publish_date DESC
     `;
     
     connection.query(query, [categoryId], (error, result) => {

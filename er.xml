@@ -1,0 +1,263 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Notice Board ER Diagram">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Admin Entity -->
+        <mxCell id="admin" value="Admin" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="80" y="200" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Admin Attributes -->
+        <mxCell id="admin_id" value="admin_id" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=4" vertex="1" parent="1">
+          <mxGeometry x="10" y="120" width="90" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="admin_name" value="name" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="110" y="120" width="70" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="admin_email" value="email" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="10" y="180" width="70" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="admin_password" value="password" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="10" y="240" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="admin_phone" value="phone" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="10" y="300" width="70" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Committee Entity -->
+        <mxCell id="committee" value="Committee" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="80" y="460" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Committee Attributes -->
+        <mxCell id="committee_id" value="committee_id" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=4" vertex="1" parent="1">
+          <mxGeometry x="10" y="380" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="committee_name" value="full_name" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="120" y="380" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="committee_email" value="email" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="10" y="440" width="70" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="committee_password" value="password" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="10" y="500" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="committee_phone" value="phone" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="10" y="560" width="70" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="committee_active" value="is_active" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="220" y="380" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="committee_created" value="created_at" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="220" y="440" width="90" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="committee_updated" value="updated_at" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="220" y="500" width="90" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Category Entity -->
+        <mxCell id="category" value="Category" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="480" y="460" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Category Attributes -->
+        <mxCell id="category_id" value="category_id" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=4" vertex="1" parent="1">
+          <mxGeometry x="400" y="380" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="category_name" value="name" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="510" y="380" width="70" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="category_dept" value="dept_associated" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="590" y="380" width="110" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="category_status" value="status" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="400" y="440" width="70" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="category_color" value="color_code" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="620" y="440" width="90" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="category_created" value="created_at" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="400" y="500" width="90" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="category_modified" value="last_modified" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="620" y="500" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Announcements Entity -->
+        <mxCell id="announcement" value="Announcements" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="480" y="200" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Announcement Attributes -->
+        <mxCell id="announcement_id" value="announcement_id" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=4" vertex="1" parent="1">
+          <mxGeometry x="380" y="100" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="announcement_title" value="title" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="510" y="100" width="60" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="announcement_content" value="content" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="580" y="100" width="70" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="announcement_url" value="url" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="660" y="100" width="60" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="announcement_status" value="status" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="380" y="160" width="70" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="announcement_priority" value="priority" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="650" y="160" width="70" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="announcement_publish" value="publish_date" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="380" y="220" width="90" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="announcement_expires" value="expires_at" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="650" y="220" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="announcement_created" value="created_at" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="380" y="280" width="90" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="announcement_updated" value="updated_at" style="ellipse;whiteSpace=wrap;html=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="650" y="280" width="90" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Relationships -->
+        
+        <!-- Admin approves Committee -->
+        <mxCell id="approves_committee" value="approves" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="100" y="350" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="approves_committee_1" value="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="140" y="270" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="approves_committee_M" value="M" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="140" y="420" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Committee creates Category -->
+        <mxCell id="creates_category" value="creates" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="300" y="460" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="creates_category_M" value="M" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="210" y="490" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="creates_category_1" value="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="450" y="490" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Admin approves Category -->
+        <mxCell id="approves_category" value="approves" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="280" y="200" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="approves_category_1admin" value="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="210" y="230" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="approves_category_M" value="M" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="450" y="230" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Committee creates Announcement -->
+        <mxCell id="creates_announcement" value="creates" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="280" y="330" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="creates_announcement_M" value="M" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="210" y="360" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="creates_announcement_1" value="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="450" y="260" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Admin approves Announcement -->
+        <mxCell id="approves_announcement" value="approves" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="280" y="100" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="approves_announcement_1" value="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="210" y="130" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="approves_announcement_M" value="M" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="450" y="170" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Category has Announcements -->
+        <mxCell id="has_announcements" value="categorizes" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="500" y="330" width="90" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="has_announcements_1" value="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="540" y="400" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="has_announcements_M" value="M" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="540" y="270" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Connection Lines -->
+        <mxCell id="line1" value="" style="endArrow=none;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="admin" target="approves_committee">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="line2" value="" style="endArrow=none;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="approves_committee" target="committee">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="line3" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="committee" target="creates_category">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="line4" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="creates_category" target="category">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="line5" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="admin" target="approves_category">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="line6" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;entryX=0;entryY=1;" edge="1" parent="1" source="approves_category" target="category">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="line7" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="committee" target="creates_announcement">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="line8" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;entryX=0;entryY=1;" edge="1" parent="1" source="creates_announcement" target="announcement">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="line9" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="admin" target="approves_announcement">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="line10" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0;" edge="1" parent="1" source="approves_announcement" target="announcement">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="line11" value="" style="endArrow=none;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="announcement" target="has_announcements">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="line12" value="" style="endArrow=none;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="has_announcements" target="category">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Attribute connection lines (sampling - add all others similarly) -->
+        <mxCell id="attr1" value="" style="endArrow=none;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="admin_id" target="admin">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="attr2" value="" style="endArrow=none;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="admin_name" target="admin">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
+
+<!-- 
+HOW TO USE THIS ER DIAGRAM:
+============================
+
+1. Open Draw.io (https://app.diagrams.net/)
+2. Click "File" > "Import from" > "Device"
+3. Save this entire XML content as "notice_board_er.xml"
+4. Import the XML file
+5. The ER diagram will appear with all entities, attributes, and relationships
+
+LEGEND:
+- Yellow ellipses with underline = Primary Keys
+- White ellipses = Regular attributes
+- Blue rectangles = Entities
+- Orange diamonds = Relationships
+- M = Many (in cardinality)
+- 1 = One (in cardinality)
+
+-->

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { announcementAPI, categoryAPI } from '../lib/api';
 
 function AnnouncementForm({ user }) {
@@ -13,6 +13,7 @@ function AnnouncementForm({ user }) {
     url: '',
     category_id: '',
     priority: 'medium',
+    publish_date: '',
     expires_at: ''
   });
   const [categories, setCategories] = useState([]);
@@ -51,6 +52,7 @@ function AnnouncementForm({ user }) {
         url: data.url || '',
         category_id: data.category_id || '',
         priority: data.priority || 'medium',
+        publish_date: data.publish_date ? data.publish_date.split('T')[0] : '',
         expires_at: data.expires_at ? data.expires_at.split('T')[0] : ''
       });
     } catch (err) {
@@ -64,16 +66,36 @@ function AnnouncementForm({ user }) {
   };
 
   const validateDates = () => {
-    if (form.expires_at) {
-      const today = new Date().setHours(0, 0, 0, 0);
-      const expiryDate = new Date(form.expires_at).setHours(0, 0, 0, 0);
-      
-      // Expiry date must be in the future (after today)
-      if (expiryDate <= today) {
-        setError('Expiry date must be in the future');
+    const today = new Date().setHours(0, 0, 0, 0);
+    
+    // Publish date validation
+    if (form.publish_date) {
+      const publishDate = new Date(form.publish_date).setHours(0, 0, 0, 0);
+      if (publishDate < today) {
+        setError('Publish date cannot be in the past');
         return false;
       }
     }
+    
+    // Expiry date validation
+    if (form.expires_at) {
+      const expiryDate = new Date(form.expires_at).setHours(0, 0, 0, 0);
+      
+      if (expiryDate < today) {
+        setError('Expiry date cannot be in the past');
+        return false;
+      }
+      
+      // If both dates are set, expiry must be after publish
+      if (form.publish_date) {
+        const publishDate = new Date(form.publish_date).setHours(0, 0, 0, 0);
+        if (expiryDate <= publishDate) {
+          setError('Expiry date must be after publish date');
+          return false;
+        }
+      }
+    }
+    
     return true;
   };
 
@@ -94,6 +116,7 @@ function AnnouncementForm({ user }) {
       const payload = {
         ...form,
         category_id: form.category_id ? parseInt(form.category_id) : null,
+        publish_date: form.publish_date || null,
         expires_at: form.expires_at || null
       };
 
@@ -128,6 +151,7 @@ function AnnouncementForm({ user }) {
       const payload = {
         ...form,
         category_id: form.category_id ? parseInt(form.category_id) : null,
+        publish_date: form.publish_date || null,
         expires_at: form.expires_at || null
       };
 
@@ -140,7 +164,6 @@ function AnnouncementForm({ user }) {
         announcementId = response.announcementId;
       }
 
-      // Submit for approval
       await announcementAPI.publish(announcementId);
       navigate('/committee/dashboard');
     } catch (err) {
@@ -262,20 +285,37 @@ function AnnouncementForm({ user }) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Expires At (Optional)
+                  Publish Date (Optional)
                 </label>
                 <input
                   type="date"
-                  name="expires_at"
-                  value={form.expires_at}
+                  name="publish_date"
+                  value={form.publish_date}
                   onChange={handleChange}
                   min={getTodayDate()}
                   className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-transparent focus:outline-none"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Must be a future date
+                  When should this announcement be visible? (Leave empty for immediate)
                 </p>
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Expires At (Optional)
+              </label>
+              <input
+                type="date"
+                name="expires_at"
+                value={form.expires_at}
+                onChange={handleChange}
+                min={form.publish_date || getTodayDate()}
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-transparent focus:outline-none"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                When should this announcement stop being visible?
+              </p>
             </div>
 
             <div className="flex gap-3 pt-4 border-t border-gray-200">
@@ -310,9 +350,11 @@ function AnnouncementForm({ user }) {
           <strong>Important:</strong>
           <ul className="list-disc list-inside mt-2 space-y-1">
             <li>Announcements saved as drafts can be edited anytime</li>
-            <li>Once submitted, they will be sent to admin for approval before being published</li>
-            <li>Expiry date must be in the future (after today)</li>
-            <li>After admin approval, the announcement will be published with the current timestamp</li>
+            <li>Once submitted, they will be sent to admin for approval</li>
+            <li><strong>Publish date:</strong> When the announcement becomes visible (optional, defaults to approval time)</li>
+            <li><strong>Expiry date:</strong> When the announcement stops being visible (optional)</li>
+            <li>Expiry date must be after publish date</li>
+            <li>Announcements are only shown between publish date and expiry date</li>
           </ul>
         </div>
       </main>

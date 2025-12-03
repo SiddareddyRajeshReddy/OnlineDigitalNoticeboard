@@ -11,8 +11,14 @@ export async function getDashboardStats(req, res) {
             (SELECT COUNT(*) FROM Committee WHERE is_active = 'not approved') as pending_committees,
             (SELECT COUNT(*) FROM Announcements WHERE status = 'pending') as pending_announcements,
             (SELECT COUNT(*) FROM Category WHERE status = 'pending') as pending_categories,
-            (SELECT COUNT(*) FROM Announcements WHERE status = 'published' AND (expires_at IS NULL OR expires_at > NOW())) as active_announcements,
-            (SELECT COUNT(*) FROM Announcements WHERE status = 'published' AND expires_at IS NOT NULL AND expires_at <= NOW()) as expired_announcements,
+            (SELECT COUNT(*) FROM Announcements 
+             WHERE status = 'published' 
+             AND publish_date <= NOW()
+             AND (expires_at IS NULL OR expires_at > NOW())) as active_announcements,
+            (SELECT COUNT(*) FROM Announcements 
+             WHERE status = 'published' 
+             AND expires_at IS NOT NULL 
+             AND expires_at <= NOW()) as expired_announcements,
             (SELECT COUNT(*) FROM Announcements WHERE status = 'rejected') as rejected_announcements,
             (SELECT COUNT(*) FROM Category WHERE status = 'approved') as active_categories,
             (SELECT COUNT(*) FROM Category WHERE status = 'rejected') as rejected_categories
@@ -36,7 +42,7 @@ export async function getExpiredAnnouncements(req, res) {
             a.content,
             a.url,
             a.priority,
-            a.published_at,
+            a.publish_date,
             a.expires_at,
             c.name AS category_name,
             c.color_code,
@@ -121,6 +127,7 @@ export async function addNewAdmin(req, res) {
     try {
         const { email, name, password, phone } = req.body;
 
+        // --- Basic validation ---
         if (!email || !name || !password) {
             return res.status(400).json({ error: "Email, name, and password are required!!!" });
         }
@@ -138,9 +145,11 @@ export async function addNewAdmin(req, res) {
             return res.status(400).json({ error: "Phone number should be at least 10 digits!!!" });
         }
 
+        // --- Hash password ---
         const salt = await bcrypt.genSalt(12);
         const hashPassword = await bcrypt.hash(password, salt);
 
+        // --- Verify admin existence ---
         const verifyQuery = 'SELECT * FROM Admin WHERE email = ? OR phone = ?';
         const verifyValues = [email, phone || ''];
 
@@ -154,7 +163,10 @@ export async function addNewAdmin(req, res) {
                 return res.status(400).json({ error: 'Admin already exists with this email or phone' });
             }
 
-            const query = `INSERT INTO Admin(email, name, password, phone) VALUES (?, ?, ?, ?)`;
+            const query = `
+                INSERT INTO Admin(email, name, password, phone)
+                VALUES (?, ?, ?, ?)
+            `;
             const values = [email, name, hashPassword, phone || null];
 
             connection.query(query, values, (error, result) => {
@@ -163,9 +175,11 @@ export async function addNewAdmin(req, res) {
                     return res.status(500).json({ message: 'Database error during insert', error: error.message });
                 }
 
+                console.log(result);
+                const adminId = result.insertId;
                 return res.status(200).json({ 
                     message: 'New admin added successfully', 
-                    adminId: result.insertId 
+                    adminId 
                 });
             });
         });
@@ -180,6 +194,7 @@ export async function adminLogin(req, res) {
     try {
         const { email, password } = req.body;
 
+        // --- Basic validation ---
         if (!email || !password) {
             return res.status(400).json({ error: "All fields are required!!!" });
         }
@@ -213,6 +228,7 @@ export async function adminLogin(req, res) {
             }
 
             const KEY = process.env.KEY;
+            console.log(KEY);
             const token = jwt.sign(
                 { 
                     id: admin.admin_id, 
@@ -227,7 +243,7 @@ export async function adminLogin(req, res) {
                 httpOnly: true,
                 secure: false,
                 sameSite: 'lax',
-                maxAge: 7 * 24 * 60 * 60 * 1000,
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
             });
 
             return res.status(200).json({
@@ -264,6 +280,7 @@ export async function getPendingCommittees(req, res) {
     });
 }
 
+// Approve committee member
 export async function approveCommittee(req, res) {
     const { id } = req.params;
     
@@ -281,6 +298,7 @@ export async function approveCommittee(req, res) {
     });
 }
 
+// Reject (delete) committee member
 export async function rejectCommittee(req, res) {
     const { id } = req.params;
     
@@ -298,6 +316,7 @@ export async function rejectCommittee(req, res) {
     });
 }
 
+// Get pending announcements
 export async function getPendingAnnouncements(req, res) {
     const query = `
         SELECT 
@@ -328,30 +347,49 @@ export async function getPendingAnnouncements(req, res) {
     });
 }
 
+// Approve announcement (set to published)
 export async function approveAnnouncement(req, res) {
     const { id } = req.params;
     const adminId = req.user.admin_id;
     
-    const query = `
-        UPDATE Announcements 
-        SET status = 'published', 
-            approved_by = ?, 
-            published_at = NOW() 
-        WHERE announcement_id = ? AND status = 'pending'
-    `;
+    // First check if publish_date is set, if not set it to NOW()
+    const checkQuery = 'SELECT publish_date FROM Announcements WHERE announcement_id = ?';
     
-    connection.query(query, [adminId, id], (error, result) => {
+    connection.query(checkQuery, [id], (error, result) => {
         if (error) {
             console.error(error);
             return res.status(500).json({ message: 'Database error', error: error.message });
         }
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Announcement not found or not pending' });
+        
+        if (result.length === 0) {
+            return res.status(404).json({ message: 'Announcement not found' });
         }
-        return res.status(200).json({ message: 'Announcement approved and published' });
+        
+        // If no publish_date set, use NOW(), otherwise keep existing
+        const publishDate = result[0].publish_date || 'NOW()';
+        
+        const query = `
+            UPDATE Announcements 
+            SET status = 'published', 
+                approved_by = ?,
+                publish_date = COALESCE(publish_date, NOW())
+            WHERE announcement_id = ? AND status = 'pending'
+        `;
+        
+        connection.query(query, [adminId, id], (error, result) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ message: 'Database error', error: error.message });
+            }
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ message: 'Announcement not found or not pending' });
+            }
+            return res.status(200).json({ message: 'Announcement approved and published' });
+        });
     });
 }
 
+// Reject announcement
 export async function rejectAnnouncement(req, res) {
     const { id } = req.params;
     const adminId = req.user.admin_id;
@@ -375,6 +413,7 @@ export async function rejectAnnouncement(req, res) {
     });
 }
 
+// Admin logout
 export async function adminLogout(req, res) {
     if (req.cookies.auth_token) {
         res.clearCookie('auth_token');

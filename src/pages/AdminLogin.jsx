@@ -40,7 +40,7 @@ const AdminLogin = ({ setUser }) => {
       <header className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <h1 className="text-lg font-bold text-gray-800">
-            NIT Sikkim Digital Notice Board
+            Digital Notice Board
           </h1>
           <div className="flex justify-end items-center gap-6">
             <Link

@@ -92,7 +92,7 @@ const PublicAnnouncements = () => {
               <div className="flex items-center gap-3">
                 <Bell className="w-8 h-8 text-red-700" />
                 <div>
-                  <h1 className="text-xl font-bold text-gray-900">NIT Sikkim</h1>
+                  <h1 className="text-xl font-bold text-gray-900">Institute's</h1>
                   <p className="text-sm text-gray-500">Digital Notice Board</p>
                 </div>
               </div>
@@ -288,7 +288,7 @@ const PublicAnnouncements = () => {
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 mt-16 py-8 shadow-inner">
         <div className="max-w-6xl mx-auto px-6 text-center text-sm text-gray-600">
-          <p className="font-medium">© {new Date().getFullYear()} National Institute of Technology Sikkim</p>
+          <p className="font-medium">© {new Date().getFullYear()} Online Institute's Digital Notice Board System</p>
           <p className="text-gray-500 mt-1">All rights reserved.</p>
         </div>
       </footer>
